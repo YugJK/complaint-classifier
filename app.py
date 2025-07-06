@@ -26,9 +26,18 @@ def load_encoder():
         return pickle.load(f)
 
 # ⚡ Load Word2Vec model (lightweight option)
-@st.cache_resource
+# Cache only the result, no UI message here
+
 def load_word2vec():
-    return api.load("word2vec-google-news-300")  # ⏩ much faster (100D)
+    if "w2v_model" not in st.session_state:
+        with st.spinner("Loading model... Please wait!!"): ## Display custom message while loading model
+            st.session_state.w2v_model = api.load("word2vec-google-news-300")
+    return st.session_state.w2v_model
+
+# Usage
+w2v_model = load_word2vec()
+
+ # ⏩ much faster (100D)
 
 # --- Load models ---
 model = load_ann_model()
@@ -57,7 +66,7 @@ st.write("Paste a complaint below to classify it into a banking issue category o
 
 user_input = st.text_area("Enter a customer complaint:")
 
-if st.button("🔍 Classify Complaint"):
+if st.button("Classify Complaint"):
     if user_input.strip() == "":
         st.warning("Please enter a complaint text.")
     else:
